@@ -3,9 +3,9 @@ using Friflo.Engine.ECS;
 
 namespace Nodus.UI {
     public static class Extensions {
-        public static Entity PushView(this EntityStore store, string stackId, string viewId) {
-            if (string.IsNullOrWhiteSpace(stackId) || string.IsNullOrWhiteSpace(viewId))
-                throw new ArgumentException("Stack and view IDs are required.");
+        public static Entity PushView(this EntityStore store, string stackId, string viewName) {
+            if (string.IsNullOrWhiteSpace(stackId) || string.IsNullOrWhiteSpace(viewName))
+                throw new ArgumentException("Stack ID and view name are required.");
 
             int order = -1;
             foreach (var entity in store.Query<ViewState>().Entities) {
@@ -17,7 +17,7 @@ namespace Nodus.UI {
             }
             return store.CreateEntity(new ViewState {
                 StackId = stackId,
-                ViewId = viewId,
+                ViewId = viewName,
                 InstanceId = Guid.NewGuid().ToString("N"),
                 Order = order + 1
             });

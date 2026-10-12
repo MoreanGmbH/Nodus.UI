@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
+using UnityEngine.UIElements;
 
 namespace Nodus.UI {
     public enum StackPresentation { TopOnly, Overlay }
@@ -15,67 +15,57 @@ namespace Nodus.UI {
 
     [CreateAssetMenu(menuName = "Nodus/UI/Configuration", fileName = "UIConfiguration")]
     public sealed class UIConfiguration : ScriptableObject {
-        [FormerlySerializedAs("themes")]
         [SerializeField] public List<ThemeProfile> Themes = new();
-
-        [FormerlySerializedAs("views")]
-        [SerializeField] public List<ViewDefinition> Views = new();
-
-        [FormerlySerializedAs("stacks")]
+        [SerializeField] public List<VisualTreeAsset> Views = new();
         [SerializeField] public List<StackDefinition> Stacks = new();
 
         public ThemeProfile FindTheme(string name) {
             ThemeProfile found = null;
             foreach (var theme in Themes) {
-                if (theme == null || !string.Equals(theme.name, name, StringComparison.Ordinal))
+                if (!theme || !string.Equals(theme.name, name, StringComparison.Ordinal))
                     continue;
-                if (found != null)
+                if (found)
                     throw new InvalidOperationException($"Duplicate UI theme name: {name}");
                 found = theme;
             }
-            return found != null ? found : throw new InvalidOperationException($"Unknown UI theme: {name}");
+            return found ? found : throw new InvalidOperationException($"Unknown UI theme: {name}");
         }
 
-        public ViewDefinition FindView(string name) {
-            ViewDefinition found = null;
+        public VisualTreeAsset FindView(string name) {
+            VisualTreeAsset found = null;
             foreach (var view in Views) {
-                if (view == null || !string.Equals(view.name, name, StringComparison.Ordinal))
+                if (!view || !string.Equals(view.name, name, StringComparison.Ordinal))
                     continue;
-                if (found != null)
+                if (found)
                     throw new InvalidOperationException($"Duplicate UI view name: {name}");
                 found = view;
             }
-            return found != null ? found : throw new InvalidOperationException($"Unknown UI view: {name}");
+            return found ? found : throw new InvalidOperationException($"Unknown UI view: {name}");
         }
 
 #if UNITY_EDITOR
         void OnValidate() {
-            // Keep the first entry for each asset name or stack ID.
-            // This also removes repeated references to the same asset.
             var names = new HashSet<string>(StringComparer.Ordinal);
             for (var i = 0; i < Themes.Count; i++) {
-                var theme = Themes[i];
-                if (theme != null && !string.IsNullOrWhiteSpace(theme.name) && names.Add(theme.name))
+                if (Themes[i] && names.Add(Themes[i].name))
                     continue;
-                Debug.LogWarning($"UIConfiguration '{name}': removing null or duplicate theme '{(theme != null ? theme.name : "null")}'.", this);
+                Debug.LogWarning($"UIConfiguration '{name}': duplicate or missing theme removed.", this);
                 Themes.RemoveAt(i--);
             }
 
             names.Clear();
             for (var i = 0; i < Views.Count; i++) {
-                var view = Views[i];
-                if (view != null && !string.IsNullOrWhiteSpace(view.name) && names.Add(view.name))
+                if (Views[i] && names.Add(Views[i].name))
                     continue;
-                Debug.LogWarning($"UIConfiguration '{name}': removing null or duplicate view '{(view != null ? view.name : "null")}'.", this);
+                Debug.LogWarning($"UIConfiguration '{name}': duplicate or missing view removed.", this);
                 Views.RemoveAt(i--);
             }
 
             names.Clear();
             for (var i = 0; i < Stacks.Count; i++) {
-                var stack = Stacks[i];
-                if (!string.IsNullOrWhiteSpace(stack.Id) && names.Add(stack.Id))
+                if (!string.IsNullOrWhiteSpace(Stacks[i].Id) && names.Add(Stacks[i].Id))
                     continue;
-                Debug.LogWarning($"UIConfiguration '{name}': removing empty or duplicate stack ID '{stack.Id}'.", this);
+                Debug.LogWarning($"UIConfiguration '{name}': duplicate or empty stack removed.", this);
                 Stacks.RemoveAt(i--);
             }
         }

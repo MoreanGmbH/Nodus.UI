@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Friflo.Engine.ECS;
 using Friflo.Engine.Unity;
@@ -12,13 +13,15 @@ namespace Nodus.UI {
     [RequireComponent(typeof(ECSStore))]
     public sealed class UI : MonoBehaviour {
         public static EntityStore Store;
-        [SerializeField] string storeId = "UI";
-        [SerializeField] UIConfiguration configuration;
-        [SerializeField] string initialThemeId = "Default";
-        [SerializeField] List<PanelRenderer> renderers = new();
+        [SerializeField] public string storeId = "UI";
+        [SerializeField] public UIConfiguration configuration;
+        [SerializeField] public List<PanelRenderer> renderers = new();
         readonly Dictionary<PanelRenderer, Entity> roots = new();
 
         void Awake() {
+            if (!configuration || configuration.Themes.Count == 0 || !configuration.Themes[0])
+                throw new InvalidOperationException("UIConfiguration must contain at least one theme.");
+
             Store = GetComponent<ECSStore>().EntityStore;
             EcsRegistry.RegisterStore(storeId, Store);
             EcsRegistry.RegisterComponent<CommandStatus>();
@@ -30,7 +33,7 @@ namespace Nodus.UI {
             EcsRegistry.RegisterComponent<PushView>();
             EcsRegistry.RegisterComponent<PopView>();
             EcsRegistry.RegisterComponent<ElementState>();
-            Store.CreateEntity(new ThemeState { ThemeId = initialThemeId });
+            Store.CreateEntity(new ThemeState { ThemeName = configuration.Themes[0].name });
             Store.CreateEntity(new LocaleState());
 
             if (renderers.Count == 0 && TryGetComponent<PanelRenderer>(out var renderer))
@@ -40,14 +43,13 @@ namespace Nodus.UI {
         }
 
 #if UNITY_EDITOR
-        [SerializeField] bool visualize = true;
+        [SerializeField] public bool visualize = true;
         void Start() {
             if (visualize)
                 EntityVisualizer.Register(name, Store);
         }
 #endif
 
-        // Connects a UI Toolkit panel to ECS; theme and view systems handle its state.
         public void RegisterRoot(PanelRenderer renderer) {
             if (renderer == null || roots.ContainsKey(renderer))
                 return;

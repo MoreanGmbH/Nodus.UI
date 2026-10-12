@@ -13,16 +13,16 @@ namespace Nodus.UI {
             foreach (var request in Query.Entities.ToEntityList()) {
                 if (request.IsNull)
                     continue;
-                var themeId = request.GetComponent<SetTheme>().ThemeId;
+                var themeName = request.GetComponent<SetTheme>().ThemeName;
                 bool found = false;
                 foreach (var state in Query.Store.Query<ThemeState>().Entities) {
                     ref var current = ref state.GetComponent<ThemeState>();
-                    current.ThemeId = themeId;
+                    current.ThemeName = themeName;
                     found = true;
                     break;
                 }
                 if (!found)
-                    Query.Store.CreateEntity(new ThemeState { ThemeId = themeId });
+                    Query.Store.CreateEntity(new ThemeState { ThemeName = themeName });
                 CommandCompletion.Complete(request);
             }
         }
@@ -68,28 +68,28 @@ namespace Nodus.UI {
     [SystemPhase(SystemPhase.Update)]
     public sealed class ThemeSystem : QuerySystem<RootReference> {
         protected override void OnUpdate() {
-            string themeId = null;
+            string themeName = null;
             foreach (var entity in Query.Store.Query<ThemeState>().Entities) {
-                themeId = entity.GetComponent<ThemeState>().ThemeId;
+                themeName = entity.GetComponent<ThemeState>().ThemeName;
                 break;
             }
-            if (string.IsNullOrEmpty(themeId))
+            if (string.IsNullOrEmpty(themeName))
                 return;
             foreach (var entity in Query.Entities) {
                 ref var reference = ref entity.GetComponent<RootReference>();
-                if (reference.Root == null || reference.AppliedThemeId == themeId)
+                if (reference.Root == null || reference.AppliedThemeName == themeName)
                     continue;
                 if (reference.Configuration == null || reference.Settings == null)
                     throw new InvalidOperationException("UIConfiguration and PanelSettings are required.");
-                var profile = reference.Configuration.FindTheme(themeId);
+                var profile = reference.Configuration.FindTheme(themeName);
                 if (profile.Theme == null)
-                    throw new InvalidOperationException($"Generate the Theme Style Sheet for '{themeId}'.");
+                    throw new InvalidOperationException($"Generate the Theme Style Sheet for '{themeName}'.");
                 reference.Root.AddToClassList("nodus-root");
                 reference.Settings.themeStyleSheet = profile.Theme;
                 reference.Root.style.unityFontDefinition = profile.Font
                     ? new StyleFontDefinition(profile.Font)
                     : new StyleFontDefinition(StyleKeyword.Null);
-                reference.AppliedThemeId = themeId;
+                reference.AppliedThemeName = themeName;
             }
         }
     }
@@ -179,12 +179,10 @@ namespace Nodus.UI {
                 var state = states[i];
                 var element = host.Q<VisualElement>(state.InstanceId);
                 if (element == null) {
-                    var definition = config.FindView(state.ViewId);
-                    if (definition.Template == null)
-                        throw new InvalidOperationException($"Missing UXML for view: {state.ViewId}");
+                    var view = config.FindView(state.ViewId);
                     element = new VisualElement { name = state.InstanceId, pickingMode = PickingMode.Ignore };
                     element.AddToClassList("nodus-view-instance");
-                    var template = definition.Template.Instantiate();
+                    var template = view.Instantiate();
                     template.pickingMode = PickingMode.Ignore;
                     template.style.flexGrow = 1;
                     element.Add(template);

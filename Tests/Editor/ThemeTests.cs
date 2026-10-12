@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Nodus.UI.Tests {
     public class ThemeTests {
@@ -13,10 +14,29 @@ namespace Nodus.UI.Tests {
         }
 
         [Test]
+        public void ConfigurationFindsAssetsByName() {
+            var configuration = ScriptableObject.CreateInstance<UIConfiguration>();
+            var theme = ScriptableObject.CreateInstance<ThemeProfile>();
+            var view = ScriptableObject.CreateInstance<VisualTreeAsset>();
+            try {
+                theme.name = "MoreanLightTheme";
+                view.name = "FeedbackPanel";
+                configuration.Themes.Add(theme);
+                configuration.Views.Add(view);
+                Assert.AreSame(theme, configuration.FindTheme("MoreanLightTheme"));
+                Assert.AreSame(view, configuration.FindView("FeedbackPanel"));
+            } finally {
+                Object.DestroyImmediate(view);
+                Object.DestroyImmediate(theme);
+                Object.DestroyImmediate(configuration);
+            }
+        }
+
+        [Test]
         public void ViewStackPushAndPop() {
             var store = new Friflo.Engine.ECS.EntityStore();
-            store.PushView("Panels", "Feedback");
-            store.PushView("Panels", "Details");
+            store.PushView("Panels", "FeedbackPanel");
+            store.PushView("Panels", "DetailsPanel");
             Assert.AreEqual(2, store.Query<ViewState>().Count);
             Assert.IsTrue(store.PopView("Panels"));
             Assert.AreEqual(1, store.Query<ViewState>().Count);

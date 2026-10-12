@@ -1,58 +1,47 @@
 # Nodus.UI
 
-UI Toolkit design system with ECS-driven theme, locale, views, stacks and element visibility.
+UI Toolkit themes, locale selection, views and stacks driven by ECS.
 
-## Installation
+## Themes
 
-```powershell
-git submodule add https://github.com/MoreanGmbH/Nodus.UI.git Packages/com.nodus.ui
-```
+Create a **Theme Profile**, generate its TSS, and add it to `UIConfiguration.Themes`.
+The theme's Unity asset name is its identifier (for example `MoreanLightTheme`).
+The **first theme** in the list is used initially; reordering the list changes the default.
 
-Requires Unity 6.6, Nodus.ECS, Unity Localization and a Friflo ECSStore. Keep project assets in `Assets/`.
+## Views and stacks
 
-## Designer — theme
+Add **VisualTreeAsset (UXML)** files directly to `UIConfiguration.Views`.
+No `ViewDefinition` assets are needed. Each UXML asset name must be unique in the list.
 
-1. Create `Assets > Create > Nodus > UI > Theme Profile`. Set a unique **Id**, palette, sizes and a TextCore font asset.
-2. Click **Generate Theme Assets**. This creates `<Name>.tokens.uss` and `<Name>.tss` beside the profile.
-3. Create a Panel Settings asset and assign the generated `.tss` for UI Builder preview.
-4. Create `Assets > Create > Nodus > UI > Configuration`; add your Theme Profile under **Themes**.
-5. Set **Initial Theme Id** on the `UI` component to the theme's **Id**.
-
-## Designer — stacks and views
-
-1. Create UXML using UI Builder. Place a full-viewport VisualElement named `Panels` in your root UXML.
-2. Create a view UXML; design the size and position of its own root element using absolute positioning or USS.
-3. Create `Assets > Create > Nodus > UI > View Definition`, assign a stable **Id** and the view UXML.
-4. Add the View Definition to **Configuration > Views**.
-5. In **Configuration > Stacks** set **Id**=`Panels`, **Container Name**=`Panels`; choose **TopOnly** or **Overlay**.
-6. Create an ECS Entities Definition with a `Nodus.UI.PushView` component (`StackId=Panels`, `ViewId=<your view ID>`). Assign it to an `EntitiesButton` in UI Builder.
-
-The stack fills its container; the view UXML controls its own layout. `PopView` removes the top view.
-
-## Designer — localization
-
-1. Install/configure Unity Localization and create the desired Locales.
-2. Create a String Table Collection under **Window > Asset Management > Localization Tables**.
-3. In UI Builder select a Label or Button, select **Text > Add Binding > LocalizedString**, and choose a table entry.
-
-UI Toolkit updates these native bindings when Unity's selected Locale changes. For an ECS language action, create an Entities Definition containing `Nodus.UI.SetLocale` with `Code` such as `de`.
-
-## Developer
-
-1. Put Friflo `ECSStore`, `ECSSystemSet` and `Nodus.UI.UI` on the UI prefab. Add a `PanelRenderer` beside it or assign one or more PanelRenderers in **Renderers**. Assign the Configuration asset and root UXML. Additional panels can register with `RegisterRoot(renderer)` on the UI component.
-2. Add these systems to the **Update** group, in order: `SetThemeSystem`, `SetLocaleSystem`, `PushViewSystem`, `PopViewSystem`, `ThemeSystem`, `LocaleSystem`, `VisibilitySystem`, `ViewsSystem`.
-3. The UI component registers types and its store (`Store Id` defaults to `UI`). The systems process ECS commands and reconcile state with the UI Toolkit root.
+Configure stacks with a unique `Id` and a `ContainerName` identifying a UXML VisualElement.
+To display a view, send a request with `ViewId` equal to the **UXML asset name**:
 
 ```csharp
-UI.Store.CreateEntity(new SetTheme { ThemeId = "Dark" });
-UI.Store.CreateEntity(new SetLocale { Code = "de" });
-UI.Store.CreateEntity(new PushView { StackId = "Panels", ViewId = "Feedback" });
-UI.Store.CreateEntity(new PopView { StackId = "Panels" });
-UI.Store.SetElementState("BackButton", visible: false);
+Navigation.CreateRequest(new PushView { StackId = "Main", ViewId = "FeedbackPanel" });
 ```
 
-UI Toolkit `name` identifiers and ECS IDs are case-sensitive. `Nodus.UI.ElementState` controls `display` and `enabled` for named UXML elements. UI-specific CSS is generated/shared through a native Theme Style Sheet. Native Unity Localization bindings manage text updates.
+The view's visual root name inside UXML may differ from its asset name.
+`UIConfiguration` removes duplicate list entries in the Editor and lookup also rejects ambiguous names.
 
-## Tests
+## Localization
 
-Use EditMode tests. If they are not discovered, add `"testables": ["com.nodus.ui"]` to `Packages/manifest.json`.
+UI Toolkit `LocalizedString` bindings on UXML elements use native Unity Localization.
+Dropdowns can store the theme asset name or the locale code (`en`, `de`), while displaying
+localized text with keys such as `Theme.MoreanLightTheme` and `Locale.de`.
+
+## ECS
+
+Put `ECSStore`, `NodusSystemSet` and `Nodus.UI.UI` on a UI prefab with a `PanelRenderer`.
+Assign the configuration and root UXML. In the Update group add:
+`SetThemeSystem`, `SetLocaleSystem`, `PushViewSystem`, `PopViewSystem`,
+`ThemeSystem`, `LocaleSystem`, `VisibilitySystem`, `ViewsSystem`.
+
+Examples:
+
+```csharp
+UI.Store.CreateEntity(new SetTheme { ThemeName = "MoreanDarkTheme" });
+UI.Store.CreateEntity(new SetLocale { Code = "de" });
+UI.Store.CreateEntity(new PushView { StackId = "Main", ViewId = "FeedbackPanel" });
+UI.Store.CreateEntity(new PopView { StackId = "Main" });
+UI.Store.SetElementState("BackButton", visible: false);
+```
