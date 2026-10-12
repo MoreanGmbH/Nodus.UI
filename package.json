@@ -1,0 +1,25 @@
+{
+  "name": "com.nodus.ui",
+  "displayName": "Nodus.UI",
+  "version": "0.3.0",
+  "unity": "6000.6",
+  "description": "UI Toolkit theme assets, localized UXML, ECS-driven views, stacks and visibility.",
+  "keywords": [
+    "nodus",
+    "ui",
+    "uitoolkit",
+    "localization",
+    "design-system"
+  ],
+  "dependencies": {
+    "com.nodus.ecs": "0.3.0",
+    "com.unity.localization": "1.5.13"
+  },
+  "samples": [
+    {
+      "displayName": "Infrastructure UI",
+      "description": "Reference UXML and USS for the map-driven toolbar and side panels.",
+      "path": "Samples~/InfrastructureUI"
+    }
+  ]
+}

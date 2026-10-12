@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:VisualElement class="nodus-panel" style="position: absolute; left: 26px; top: 104px;">
+        <ui:Label text="Explore" class="nodus-panel__title" />
+        <ui:Label text="Categories" class="nodus-panel__subtitle" />
+        <ui:VisualElement class="nodus-card"><ui:Label text="Point of interest" /></ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

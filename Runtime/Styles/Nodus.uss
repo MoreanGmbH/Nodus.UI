@@ -1,0 +1,92 @@
+.nodus-root {
+    flex-grow: 1;
+    color: var(--nodus-text);
+    font-size: var(--nodus-font-body);
+}
+.nodus-toolbar {
+    position: absolute;
+    top: 22px;
+    left: 26px;
+    right: 26px;
+    min-height: 66px;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 16px;
+    padding-right: 16px;
+    background-color: var(--nodus-surface);
+    border-radius: var(--nodus-radius);
+}
+.nodus-toolbar__brand { font-size: var(--nodus-font-title); color: var(--nodus-primary); -unity-font-style: bold; margin-right: 24px; }
+.nodus-toolbar__items { flex-direction: row; align-items: center; flex-grow: 1; }
+.nodus-button {
+    min-height: 38px;
+    padding-left: 14px;
+    padding-right: 14px;
+    background-color: var(--nodus-surface);
+    color: var(--nodus-text);
+    border-width: 0;
+    border-radius: 8px;
+    font-size: var(--nodus-font-body);
+    -unity-text-align: middle-center;
+}
+.nodus-button:hover { background-color: var(--nodus-primary-soft); color: var(--nodus-primary-dark); }
+.nodus-button:focus { border-width: 2px; border-color: var(--nodus-primary); }
+.nodus-button--primary { background-color: var(--nodus-primary); color: #FFFFFF; }
+.nodus-button--primary:hover { background-color: var(--nodus-primary-dark); color: #FFFFFF; }
+.nodus-panel {
+    width: 300px;
+    padding: 18px;
+    background-color: var(--nodus-surface);
+    border-radius: var(--nodus-radius);
+}
+.nodus-panel__title { font-size: var(--nodus-font-title); color: var(--nodus-primary); -unity-font-style: bold; }
+.nodus-panel__subtitle { font-size: var(--nodus-font-small); color: var(--nodus-primary); margin-top: 4px; }
+.nodus-card { background-color: var(--nodus-surface-muted); border-radius: 8px; padding: 10px; margin-top: 6px; }
+.nodus-card--selected { background-color: var(--nodus-primary-soft); border-color: var(--nodus-primary); border-width: 1px; }
+.nodus-label--small { font-size: var(--nodus-font-small); color: var(--nodus-text-muted); }
+.nodus-spacer { flex-grow: 1; }
+.nodus-view-instance {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+/* GenericDropdownMenu is created at panel scope, outside the UXML root. */
+.unity-base-dropdown__container-outer {
+    background-color: var(--nodus-surface);
+    border-width: 1px;
+    border-color: var(--nodus-border);
+    border-radius: 8px;
+    padding: 4px;
+}
+
+.unity-base-dropdown__container-inner {
+    background-color: var(--nodus-surface);
+}
+
+.unity-base-dropdown__item {
+    min-height: 34px;
+    border-radius: 5px;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.unity-base-dropdown__item:hover {
+    background-color: var(--nodus-primary-soft);
+}
+
+.unity-base-dropdown__item:checked {
+    background-color: var(--nodus-primary-soft);
+}
+
+.unity-base-dropdown__label {
+    font-size: var(--nodus-font-body);
+    color: var(--nodus-text);
+    white-space: nowrap;
+}
+
+.unity-base-dropdown__checkmark {
+    display: none;
+}

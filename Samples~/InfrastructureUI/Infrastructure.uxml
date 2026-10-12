@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:nodus="Nodus.UI">
+    <ui:VisualElement name="App" class="nodus-root" style="flex-grow: 1;">
+        <ui:VisualElement name="Toolbar" class="nodus-toolbar">
+            <ui:Label text="Infrastructure Prototype" class="nodus-toolbar__brand" />
+            <ui:VisualElement class="nodus-toolbar__items">
+                <ui:Button name="BackButton" text="Back" class="nodus-button" />
+                <ui:Button name="ForwardButton" text="Forward" class="nodus-button" />
+                <ui:Button text="Explore" class="nodus-button" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="Panels" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0;" picking-mode="Ignore" />
+    </ui:VisualElement>
+</ui:UXML>
