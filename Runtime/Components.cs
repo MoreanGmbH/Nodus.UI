@@ -4,12 +4,15 @@ using UnityEngine.UIElements;
 namespace Nodus.UI {
     [ComponentKey("Nodus.UI.ThemeState")]
     public struct ThemeState : IComponent {
-        public string ThemeId;
+        public string ThemeName;
+        // Compatibility with existing Nodus.UI ThemeSystem until its source can be updated.
+        public string ThemeId { get => ThemeName; set => ThemeName = value; }
     }
 
     [ComponentKey("Nodus.UI.SetTheme")]
     public struct SetTheme : IComponent {
-        public string ThemeId;
+        public string ThemeName;
+        public string ThemeId { get => ThemeName; set => ThemeName = value; }
     }
 
     [ComponentKey("Nodus.UI.LocaleState")]
@@ -53,6 +56,7 @@ namespace Nodus.UI {
         public VisualElement Root;
         public PanelSettings Settings;
         public UIConfiguration Configuration;
-        public string AppliedThemeId;
+        public string AppliedThemeName;
+        public string AppliedThemeId { get => AppliedThemeName; set => AppliedThemeName = value; }
     }
 }

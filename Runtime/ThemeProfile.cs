@@ -5,11 +5,12 @@ using UnityEngine.UIElements;
 namespace Nodus.UI {
     [CreateAssetMenu(menuName = "Nodus/UI/Theme Profile", fileName = "Theme")]
     public sealed class ThemeProfile : ScriptableObject {
+        // The asset's name is the only theme identifier.
+        // Compatibility accessors for older Nodus.UI systems; neither stores a separate ID.
+        public string Id => name;
+        public string DisplayName => name;
+
         [Header("Generated UI Toolkit theme")]
-        [SerializeField] string id = "Default";
-        [SerializeField] string displayName;
-        public string Id => id;
-        public string DisplayName => string.IsNullOrWhiteSpace(displayName) ? id : displayName;
         public ThemeStyleSheet Theme;
         public FontAsset Font;
 
