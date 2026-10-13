@@ -2,6 +2,12 @@
 
 UI Toolkit themes, locale selection, views and stacks driven by ECS.
 
+## Installation
+
+```powershell
+git submodule add https://github.com/MoreanGmbH/Nodus.UI.git Packages/com.nodus.ui
+```
+
 ## Themes
 
 Create a **Theme Profile**, generate its TSS, and add it to `UIConfiguration.Themes`.
