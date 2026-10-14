@@ -126,7 +126,6 @@ namespace Nodus.UI {
                 if (version != requestVersion || panel == null || !Application.isPlaying ||
                     options != expectedOptions || requestedLocale != locale) return;
                 stringTable = operation.Result;
-                // Reformat using the existing stable key; never assign localized text as value.
                 if (!string.IsNullOrEmpty(value) && choices.Contains(value))
                     SetValueWithoutNotify(value);
                 FitSelected();
@@ -145,16 +144,38 @@ namespace Nodus.UI {
             return key;
         }
 
+        float ContentWidth() {
+            var input = this.Q<VisualElement>(className: "unity-base-popup-field__input");
+            var text = this.Q<TextElement>(className: "unity-base-popup-field__text");
+            if (input == null || text == null) return 0;
+
+            float labelWidth = 0;
+            foreach (var key in choices) {
+                var size = text.MeasureTextSize(Label(key), 0, VisualElement.MeasureMode.Undefined,
+                    0, VisualElement.MeasureMode.Undefined);
+                labelWidth = Mathf.Max(labelWidth, size.x);
+            }
+
+            var inputStyle = input.resolvedStyle;
+            return labelWidth + inputStyle.paddingLeft + inputStyle.paddingRight +
+                inputStyle.borderLeftWidth + inputStyle.borderRightWidth;
+        }
+
         void FitSelected() {
             schedule.Execute(() => {
                 if (panel == null) return;
-                var textElement = this.Q<TextElement>(className: "unity-base-popup-field__text");
-                if (textElement == null) return;
-                var text = Label(value);
-                if (string.IsNullOrEmpty(text)) return;
-                var size = textElement.MeasureTextSize(text, 0, VisualElement.MeasureMode.Undefined,
-                    0, VisualElement.MeasureMode.Undefined);
-                style.width = (float)Math.Ceiling(size.x) + 54;
+                var group = parent?.parent;
+                if (ClassListContains("nodus-select") && group != null &&
+                    group.ClassListContains("nodus-toolbar__settings")) {
+                    float width = 0;
+                    foreach (var dropdown in group.Query<EntitiesDropdown>(className: "nodus-select").ToList())
+                        width = Mathf.Max(width, dropdown.ContentWidth());
+                    if (width > 0) group.style.width = Mathf.Ceil(width);
+                    return;
+                }
+
+                float contentWidth = ContentWidth();
+                if (contentWidth > 0) style.width = Mathf.Ceil(contentWidth);
             });
         }
 
@@ -162,22 +183,15 @@ namespace Nodus.UI {
             schedule.Execute(() => {
                 if (panel == null) return;
                 var popup = panel.visualTree.Q<VisualElement>(className: GenericDropdownMenu.containerOuterUssClassName);
-                var textElement = this.Q<TextElement>(className: "unity-base-popup-field__text");
-                if (popup == null || textElement == null) return;
-
-                float width = resolvedStyle.width;
-                foreach (var key in choices) {
-                    var size = textElement.MeasureTextSize(Label(key), 0, VisualElement.MeasureMode.Undefined,
-                        0, VisualElement.MeasureMode.Undefined);
-                    width = Math.Max(width, size.x + 48);
-                }
-                width = (float)Math.Ceiling(width);
-                popup.style.width = width;
-                popup.style.minWidth = width;
-
-                var panelWidth = panel.visualTree.resolvedStyle.width;
-                if (popup.resolvedStyle.left + width > panelWidth)
-                    popup.style.left = Math.Max(0, panelWidth - width);
+                if (popup == null) return;
+                popup.style.width = StyleKeyword.Auto;
+                popup.style.minWidth = resolvedStyle.width;
+                popup.style.maxWidth = StyleKeyword.None;
+                popup.schedule.Execute(() => {
+                    if (panel == null) return;
+                    float left = popup.resolvedStyle.left + worldBound.x - popup.worldBound.x;
+                    popup.style.left = Mathf.Max(0, left);
+                });
             });
         }
     }

@@ -22,10 +22,8 @@ namespace Nodus.UI {
         public ThemeProfile FindTheme(string name) {
             ThemeProfile found = null;
             foreach (var theme in Themes) {
-                if (!theme || !string.Equals(theme.name, name, StringComparison.Ordinal))
-                    continue;
-                if (found)
-                    throw new InvalidOperationException($"Duplicate UI theme name: {name}");
+                if (!theme || !string.Equals(theme.name, name, StringComparison.Ordinal)) continue;
+                if (found) throw new InvalidOperationException($"Duplicate UI theme name: {name}");
                 found = theme;
             }
             return found ? found : throw new InvalidOperationException($"Unknown UI theme: {name}");
@@ -34,10 +32,8 @@ namespace Nodus.UI {
         public VisualTreeAsset FindView(string name) {
             VisualTreeAsset found = null;
             foreach (var view in Views) {
-                if (!view || !string.Equals(view.name, name, StringComparison.Ordinal))
-                    continue;
-                if (found)
-                    throw new InvalidOperationException($"Duplicate UI view name: {name}");
+                if (!view || !string.Equals(view.name, name, StringComparison.Ordinal)) continue;
+                if (found) throw new InvalidOperationException($"Duplicate UI view name: {name}");
                 found = view;
             }
             return found ? found : throw new InvalidOperationException($"Unknown UI view: {name}");
@@ -47,24 +43,19 @@ namespace Nodus.UI {
         void OnValidate() {
             var names = new HashSet<string>(StringComparer.Ordinal);
             for (var i = 0; i < Themes.Count; i++) {
-                if (Themes[i] && names.Add(Themes[i].name))
-                    continue;
-                Debug.LogWarning($"UIConfiguration '{name}': duplicate or missing theme removed.", this);
+                if (!Themes[i] || names.Add(Themes[i].name)) continue;
+                Debug.LogWarning($"UIConfiguration '{name}': duplicate theme removed.", this);
                 Themes.RemoveAt(i--);
             }
-
             names.Clear();
             for (var i = 0; i < Views.Count; i++) {
-                if (Views[i] && names.Add(Views[i].name))
-                    continue;
-                Debug.LogWarning($"UIConfiguration '{name}': duplicate or missing view removed.", this);
+                if (!Views[i] || names.Add(Views[i].name)) continue;
+                Debug.LogWarning($"UIConfiguration '{name}': duplicate view removed.", this);
                 Views.RemoveAt(i--);
             }
-
             names.Clear();
             for (var i = 0; i < Stacks.Count; i++) {
-                if (!string.IsNullOrWhiteSpace(Stacks[i].Id) && names.Add(Stacks[i].Id))
-                    continue;
+                if (!string.IsNullOrWhiteSpace(Stacks[i].Id) && names.Add(Stacks[i].Id)) continue;
                 Debug.LogWarning($"UIConfiguration '{name}': duplicate or empty stack removed.", this);
                 Stacks.RemoveAt(i--);
             }
